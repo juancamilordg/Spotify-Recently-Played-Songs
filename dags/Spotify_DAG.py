@@ -13,11 +13,9 @@ from sqlalchemy import create_engine
 import base64
 import requests
 from sqlalchemy.exc import IntegrityError
-
-
+import os 
 # %%
 # Set credentials
-load_dotenv() 
 CLIENT_ID = os.getenv("CLIENT_ID")
 CLIENT_SECRET =os.getenv("CLIENT_SECRET")
 REFRESH_TOKEN=os.getenv("REFRESH_TOKEN")
