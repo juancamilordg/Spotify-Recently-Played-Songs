@@ -23,7 +23,6 @@ RUN groupadd --gid $USER_GID $USERNAME && \
     echo $USERNAME ALL=\(root\) NOPASSWD:ALL > /etc/sudoers.d/$USERNAME && \
     chmod 0440 /etc/sudoers.d/$USERNAME
 
-#RUN pip install -r requirements.txt
 
 USER $USERNAME
 
@@ -33,4 +32,20 @@ RUN echo "python.pythonPath\": \"/usr/local/bin/python3\"" >> /home/$USERNAME/.v
 # Set working directory
 WORKDIR /workspace
 
+# Copy requirements file and install dependencies (if needed)
+# COPY requirements.txt .
+
+# Install Python dependencies (if using a requirements file)
+# RUN pip install -r requirements.txt
+
+# Copy .env file to the working directory
+COPY .env /workspace/.env
+
+# Set environment variables (optional, depending on how you handle them)
+# ENV CLIENT_ID=<your_client_id>
+# ENV CLIENT_SECRET=<your_client_secret>
+# ENV REFRESH_TOKEN=<your_refresh_token>
+
 CMD ["sleep", "infinity"]
+
+

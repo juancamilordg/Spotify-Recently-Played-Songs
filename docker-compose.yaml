@@ -73,6 +73,12 @@ x-airflow-common:
     _PIP_ADDITIONAL_REQUIREMENTS: ${_PIP_ADDITIONAL_REQUIREMENTS:- apache-airflow-providers-google}
     # Piggyback local GCP credentials
     GOOGLE_APPLICATION_CREDENTIALS: /gcp/config/application_default_credentials.json
+
+    # Define credentials for API
+    AIRFLOW_VAR_CLIENT_ID: ${CLIENT_ID}
+    AIRFLOW_VAR_CLIENT_SECRET: ${CLIENT_SECRET}
+    AIRFLOW_VAR_REFRESH_TOKEN: ${REFRESH_TOKEN}
+
   volumes:
     - ${AIRFLOW_PROJ_DIR:-.}/dags:/opt/airflow/dags
     - ${AIRFLOW_PROJ_DIR:-.}/logs:/opt/airflow/logs
@@ -90,7 +96,7 @@ x-airflow-common:
 
 services:
   postgres:
-    image: postgres:13
+    image: postgres:latest
     environment:
       POSTGRES_USER: airflow
       POSTGRES_PASSWORD: airflow

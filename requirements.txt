@@ -1,1 +1,2 @@
 spotipy==2.23.0
+psycopg2 ==2.9.9

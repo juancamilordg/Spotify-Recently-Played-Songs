@@ -5,25 +5,27 @@ from datetime import datetime
 import datetime
 import pandas as pd
 import datetime as dt
+import psycopg2
 from airflow import DAG
 from airflow.operators.python import PythonOperator
 from airflow.hooks.base import BaseHook
 from airflow.providers.postgres.operators.postgres import PostgresOperator
+from airflow.models import Variable
 from sqlalchemy import create_engine
 import base64
 import requests
-from sqlalchemy.exc import IntegrityError
-import os 
+from sqlalchemy.exc import IntegrityError 
+
 # %%
 # Set credentials
-CLIENT_ID = os.getenv("CLIENT_ID")
-CLIENT_SECRET =os.getenv("CLIENT_SECRET")
-REFRESH_TOKEN=os.getenv("REFRESH_TOKEN")
-EMAIL = os.getenv("EMAIL")
+CLIENT_ID = Variable.get("CLIENT_ID")
+CLIENT_SECRET =Variable.get("CLIENT_SECRET")
+REFRESH_TOKEN=Variable.get("REFRESH_TOKEN")
 REDIRECT_URI="https://spotify-refresh-token-generator.netlify.app"
 SCOPES="user-read-recently-played"
 
 # %%
+# Define function to generate access token from Spotify
 def generate_access_token(client_id,client_secret,refresh_token):
         auth_client = client_id + ":" + client_secret
         auth_encode = 'Basic ' + base64.b64encode(auth_client.encode()).decode()
@@ -34,18 +36,18 @@ def generate_access_token(client_id,client_secret,refresh_token):
             'grant_type' : 'refresh_token',
             'refresh_token' : refresh_token
             }
-        response = requests.post('https://accounts.spotify.com/api/token', data=data, headers=headers) #sends request off to spotify
+        response = requests.post('https://accounts.spotify.com/api/token', data=data, headers=headers) #send request off to spotify
 
         if(response.status_code == 200): #checks if request was valid
             print("The request to went through we got a status 200; Spotify token refreshed")
             response_json = response.json()
             new_expire = response_json['expires_in']
-            print("the time left on new token is: "+ str(new_expire / 60) + "min") #says how long
+            print("the time left on new token is: "+ str(new_expire / 60) + "min")
             return response_json["access_token"]
         else:
             print("ERROR! The response we got was: "+ str(response))
 
-# Define function to get recently payed songs
+# Define function to get recently played songs
 def recently_played_songs():
         input_variables = {
         "Accept" : "application/json",
@@ -114,9 +116,7 @@ def spotify_etl():
 default_args = {
     'owner': 'airflow',
     'depends_on_past': False,
-    'start_date': dt.datetime(2023,9,24,15,00,00),
-    'email': [EMAIL],
-    'email_on_failure': True,
+    'start_date': dt.datetime(2024,6,20,15,00,00),
     'email_on_retry': False,
     'retries': 0,
     'retry_delay': dt.timedelta(minutes=1)
